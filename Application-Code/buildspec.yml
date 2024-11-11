@@ -1,0 +1,55 @@
+version: 0.2
+
+env:
+  variables:
+    EKS_CLUSTER_NAME: "devsecops-internship"
+    EKS_ROLE_ARN: "arn:aws:iam::430118825352:role/EksCodeBuildKubectlRole"
+    ECR_REPOSITORY_URI: "public.ecr.aws/o1u4x9s4/three-tier-bd"
+    # SONARQUBE_HOST: "your-sonarqube-host-url"
+    # SONARQUBE_TOKEN: "your-sonarqube-auth-token"
+    IMAGE_TAG: "$CODEBUILD_RESOLVED_SOURCE_VERSION"
+
+phases:
+  install:
+    runtime-versions:
+      docker: 20
+    commands:
+      - echo Installing dependencies...
+      # - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      # - curl -o /opt/sonar-scanner.zip -L "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip"
+      # - unzip /opt/sonar-scanner.zip -d /opt && rm /opt/sonar-scanner.zip
+      # - export PATH=$PATH:/opt/sonar-scanner-4.6.2.2472-linux/bin
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+      - echo Updating image tag in Kubernetes manifest...
+      - sed -i "s|image: .*$|image: $ECR_REPOSITORY_URI:$IMAGE_TAG|g" kubernetes/deployment.yaml
+      - echo Setting up Kubernetes config...
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --role-arn $EKS_ROLE_ARN
+
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+      # - echo Running Trivy security scan on Docker image...
+      # - trivy image --exit-code 1 --severity HIGH,CRITICAL $ECR_REPOSITORY_URI:$IMAGE_TAG
+      # - echo Running SonarQube analysis...
+      # - sonar-scanner -Dsonar.projectKey=TWSApp -Dsonar.sources=. -Dsonar.host.url=$SONARQUBE_HOST -Dsonar.login=$SONARQUBE_TOKEN
+      # - echo Pushing Docker image to Amazon ECR...
+      - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+
+  post_build:
+    commands:
+      - echo Exporting AWS credentials and applying manifests...
+      - kubectl apply -f kubernetes/deployment.yaml
+      - kubectl apply -f kubernetes/service.yaml
+      - echo Storing build artifacts...
+      - echo $IMAGE_TAG > image_tag.txt
+
+artifacts:
+  files:
+    - kubernetes/deployment.yaml
+    - kubernetes/service.yaml
+    - image_tag.txt
