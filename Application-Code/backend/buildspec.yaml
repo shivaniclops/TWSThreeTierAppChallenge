@@ -8,7 +8,7 @@ env:
     ECR_REPOSITORY_URI: "public.ecr.aws/o1u4x9s4/three-tier-bd"
     # SONARQUBE_HOST: "your-sonarqube-host-url"
     # SONARQUBE_TOKEN: "your-sonarqube-auth-token"
-    IMAGE_TAG: "$CODEBUILD_RESOLVED_SOURCE_VERSION"
+    IMAGE_TAG: $CODEBUILD_RESOLVED_SOURCE_VERSION
 
 phases:
   install:
