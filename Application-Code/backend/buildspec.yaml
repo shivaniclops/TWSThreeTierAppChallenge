@@ -12,8 +12,8 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      docker: 20
+    # runtime-versions:
+      # docker: 20
     commands:
       - echo Installing dependencies...
       # - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
