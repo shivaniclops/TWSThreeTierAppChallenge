@@ -8,7 +8,7 @@ env:
     ECR_REPOSITORY_URI: "public.ecr.aws/o1u4x9s4/three-tier-bd"
     # SONARQUBE_HOST: "your-sonarqube-host-url"
     # SONARQUBE_TOKEN: "your-sonarqube-auth-token"
-    IMAGE_TAG: $CODEBUILD_RESOLVED_SOURCE_VERSION
+    # IMAGE_TAG: $CODEBUILD_RESOLVED_SOURCE_VERSION
 
 phases:
   install:
@@ -45,15 +45,17 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      - echo $IMAGE_TAG
-      - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+      # - echo $IMAGE_TAG
+      - TAG="$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+      - docker build --tag $ECR_REPOSITORY_URI:$TAG .
+      # - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
       # - docker build --tag $ECR_REPOSITORY_URI:$TAG .
       # - echo Running Trivy security scan on Docker image...
       # - trivy image --exit-code 1 --severity HIGH,CRITICAL $ECR_REPOSITORY_URI:$IMAGE_TAG
       # - echo Running SonarQube analysis...
       # - sonar-scanner -Dsonar.projectKey=TWSApp -Dsonar.sources=. -Dsonar.host.url=$SONARQUBE_HOST -Dsonar.login=$SONARQUBE_TOKEN
       - echo Pushing Docker image to Amazon ECR...
-      - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+      - docker push $ECR_REPOSITORY_URI:$TAG
 
   post_build:
     commands:
