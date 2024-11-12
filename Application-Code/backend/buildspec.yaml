@@ -60,7 +60,8 @@ phases:
   post_build:
     commands:
       - echo Exporting AWS credentials and applying manifests...
-      - sed -i "s/public.ecr.aws\/o1u4x9s4\/three-tier-bd":.*/public.ecr.aws\/o1u4x9s4\/three-tier-bd":${TAG}/g"  Kubernetes-Manifests-file/Backend/deployment.yaml
+      # - sed -i "s/public.ecr.aws\/o1u4x9s4\/three-tier-bd":.*/public.ecr.aws\/o1u4x9s4\/three-tier-bd":${TAG}/g"  Kubernetes-Manifests-file/Backend/deployment.yaml
+      - sed -i "s|public.ecr.aws/o1u4x9s4/three-tier-bd:.*|public.ecr.aws/o1u4x9s4/three-tier-bd:${TAG}|g" Kubernetes-Manifests-file/Backend/deployment.yaml
       - kubectl apply -f Kubernetes-Manifests-file/Backend/deployment.yaml
       - kubectl apply -f Kubernetes-Manifests-file/Backend/service.yaml
       - echo Storing build artifacts...
