@@ -24,7 +24,8 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+      # - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/o1u4x9s4
       # - echo Updating image tag in Kubernetes manifest...
       # - sed -i "s@image: .*$@image: $ECR_REPOSITORY_URI:$IMAGE_TAG@g" Kubernetes-Manifests-file/Backend/deployment.yaml
       # kubernetes/deployment.yaml
