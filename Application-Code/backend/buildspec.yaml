@@ -35,8 +35,8 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      # - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
-      - docker build --tag $ECR_REPOSITORY_URI:$TAG .
+      - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+      # - docker build --tag $ECR_REPOSITORY_URI:$TAG .
       # - echo Running Trivy security scan on Docker image...
       # - trivy image --exit-code 1 --severity HIGH,CRITICAL $ECR_REPOSITORY_URI:$IMAGE_TAG
       # - echo Running SonarQube analysis...
